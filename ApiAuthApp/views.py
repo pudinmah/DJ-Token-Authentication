@@ -66,7 +66,11 @@ def TestView(request):
 
     return Response({"message":"Test View pagewkwkwkw"})
 
-@api_view(["POST"])
+@api_view(["GET"])
+@authentication_classes([SessionAuthentication,TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def logout(request):
+
+    request.user.auth_token.delete()
 
     return Response({"message": "logout page"})
