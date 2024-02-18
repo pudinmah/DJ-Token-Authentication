@@ -6,6 +6,9 @@ from .serializers import UserSerializer
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
+from rest_framework.decorators import authentication_classes, permission_classes
+from rest_framework.authentication import TokenAuthentication, SessionAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 
@@ -56,9 +59,12 @@ def login(request):
     return Response({"detail":"not fontd"}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(["GET"])
+@authentication_classes([SessionAuthentication,TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def TestView(request):
 
-    return Response({"message":"Test View page"})
+
+    return Response({"message":"Test View pagewkwkwkw"})
 
 @api_view(["POST"])
 def logout(request):
