@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from .serializers import UserSerializer
 from rest_framework import status
 from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate
 
 # Create your views here.
 
@@ -29,10 +30,30 @@ def signup(request):
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(["POST"])
 def login(request):
+    data = request.data
+    authenticate_user = authenticate(username=data['username'],password=data['password'])
 
-    return Response({"message":"login page"})
+    if authenticate_user is not None:
+        user = User.objects.get(username=data['username'])
+        serializer = UserSerializer(user)
+
+        response_data = {
+            'user':serializer.data
+        }
+        
+        token, created_token = Token.objects.get_or_create(user=user)
+
+        if token:
+            response_data['token'] = token.key
+        elif created_token:
+            response_data["token"]= created_token.key
+
+        return Response(response_data)
+
+    return Response({"detail":"not fontd"}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(["GET"])
 def TestView(request):
