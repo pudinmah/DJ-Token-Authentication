@@ -2,13 +2,32 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from django.contrib.auth.models import User
 from rest_framework.response import Response
+from .serializers import UserSerializer
+from rest_framework import status
+from rest_framework.authtoken.models import Token
 
 # Create your views here.
 
 @api_view(["POST"])
 def signup(request):
 
-    return Response({"message":"sign up page"})
+    serializer = UserSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+
+        user = User.objects.get(username=request.data['username'])
+        token = Token.objects.get(user=user)
+
+        serializer = UserSerializer(user)
+
+        data = {
+            "user": serializer.data,
+            "token": token.key
+        }
+
+        return Response(data, status=status.HTTP_201_CREATED)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(["POST"])
 def login(request):
